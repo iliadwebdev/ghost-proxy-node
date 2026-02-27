@@ -1,20 +1,21 @@
-import { loadDevConfig } from "./config.js";
 import { checkTargets } from "./lib/healthcheck.js";
-import { logStartup } from "./lib/logger.js";
-import { proxy } from "./lib/proxy.js";
 import { logRequest } from "./lib/logger.js";
+import { logStartup } from "./lib/logger.js";
+import { loadDevConfig } from "./config.js";
 import { createServer } from "./server.js";
+import { proxy } from "./lib/proxy.js";
+
 import type { IncomingMessage, ServerResponse } from "http";
 
 const config = loadDevConfig();
 
-const ghostPatterns = [/^\/ghost/, /^\/content\/images/];
 const rewritePatterns = [/\.ghost\/analytics/, /\.ghost\/activitypub/];
+const ghostPatterns = [/^\/ghost/, /^\/content\/images/];
 
 function isGhostRequest(url: string): boolean {
   return (
-    ghostPatterns.some((p) => p.test(url)) ||
-    rewritePatterns.some((p) => p.test(url))
+    rewritePatterns.some((p) => p.test(url)) ||
+    ghostPatterns.some((p) => p.test(url))
   );
 }
 

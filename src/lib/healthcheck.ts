@@ -1,4 +1,5 @@
 import http from "http";
+import https from "https";
 import chalk from "chalk";
 
 function checkTarget(
@@ -8,7 +9,8 @@ function checkTarget(
 ): Promise<boolean> {
   return new Promise((resolve) => {
     const { hostname, port, protocol } = new URL(url);
-    const req = http.request(
+    const transport = protocol === "https:" ? https : http;
+    const req = transport.request(
       {
         hostname,
         port: port || (protocol === "https:" ? 443 : 80),

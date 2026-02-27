@@ -1,11 +1,13 @@
-import { loadProductionConfig } from "./config.js";
 import { checkTargets } from "./lib/healthcheck.js";
+import { loadProductionConfig } from "./config.js";
 import { logStartup } from "./lib/logger.js";
 import { createServer } from "./server.js";
-import { analyticsRoute } from "./routes/analytics.js";
+
+// Routers
 import { activityPubRoute } from "./routes/activitypub.js";
-import { ghostRoute } from "./routes/ghost.js";
+import { analyticsRoute } from "./routes/analytics.js";
 import { nextjsRoute } from "./routes/nextjs.js";
+import { ghostRoute } from "./routes/ghost.js";
 
 const config = loadProductionConfig();
 

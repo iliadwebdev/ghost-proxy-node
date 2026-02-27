@@ -1,4 +1,4 @@
-import chalk from "chalk";
+import chalk, { type ChalkInstance } from "chalk";
 
 function timestamp(): string {
   return chalk.gray(`[${new Date().toISOString()}]`);
@@ -10,19 +10,16 @@ export function logRequest(method: string, url: string, target: string): void {
   );
 }
 
-export function logResponse(
-  method: string,
-  url: string,
-  status: number,
-): void {
-  const colorStatus =
-    status < 300
-      ? chalk.green(status)
-      : status < 400
-        ? chalk.cyan(status)
-        : status < 500
-          ? chalk.yellow(status)
-          : chalk.red(status);
+function resolveColor(status: number): ChalkInstance {
+  if (status < 300) return chalk.green;
+  if (status < 400) return chalk.cyan;
+  if (status < 500) return chalk.yellow;
+
+  return chalk.red;
+}
+
+export function logResponse(method: string, url: string, status: number): void {
+  const colorStatus = resolveColor(status)(status.toString());
 
   console.log(
     `${timestamp()} ${method} ${url} ${chalk.gray("←")} ${colorStatus}`,

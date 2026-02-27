@@ -1,19 +1,21 @@
 import "dotenv/config";
-import { z } from "zod";
+
 import chalk from "chalk";
+import { z } from "zod";
 
 const productionSchema = z.object({
-  GHOST_INTERNAL_URL: z.string().url(),
-  NEXTJS_INTERNAL_URL: z.string().url(),
-  ANALYTICS_PROXY_TARGET: z.string().url(),
   ACTIVITYPUB_PROXY_TARGET: z.string().url(),
+  ANALYTICS_PROXY_TARGET: z.string().url(),
+  NEXTJS_INTERNAL_URL: z.string().url(),
+  GHOST_INTERNAL_URL: z.string().url(),
+
   PORT: z.coerce.number().default(8080),
 });
 
 const devSchema = z.object({
-  PROXY_TARGET: z.string().url(),
   DEV_NEXTJS_URL: z.string().url().default("http://localhost:3000"),
   DEV_PORT: z.coerce.number().default(3001),
+  PROXY_TARGET: z.string().url(),
 });
 
 export type ProductionConfig = z.output<typeof productionSchema>;
@@ -29,9 +31,11 @@ function parseEnv<T extends z.ZodTypeAny>(
     console.error(
       chalk.red.bold(`Invalid ${label} environment configuration:\n`),
     );
+
     for (const issue of result.error.issues) {
       console.error(chalk.red(`  ${issue.path.join(".")}: ${issue.message}`));
     }
+
     process.exit(1);
   }
 
