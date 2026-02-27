@@ -6,7 +6,7 @@ import { proxy } from "../lib/proxy.js";
 export function ghostRoute(target: string) {
   return (req: IncomingMessage, res: ServerResponse): boolean => {
     const url = req.url ?? "/";
-    if (!url.startsWith("/ghost") && !url.startsWith("/content/images")) {
+    if (!url.startsWith("/ghost") && !url.startsWith("/content/images") && !url.startsWith("/members/api")) {
       return false;
     }
 
