@@ -6,7 +6,13 @@ import { proxy } from "../lib/proxy.js";
 export function ghostRoute(target: string) {
   return (req: IncomingMessage, res: ServerResponse): boolean => {
     const url = req.url ?? "/";
-    if (!url.startsWith("/ghost") && !url.startsWith("/content/images") && !url.startsWith("/members/api")) {
+    const isGhostPath =
+      url.startsWith("/ghost") ||
+      url.startsWith("/content/images") ||
+      url.startsWith("/members/api") ||
+      (url.startsWith("/members/") && url.includes("token="));
+
+    if (!isGhostPath) {
       return false;
     }
 
