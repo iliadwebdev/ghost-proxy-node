@@ -1,7 +1,10 @@
 import { logResponse, logError } from "./logger.js";
 import httpProxy from "http-proxy";
 
-export const proxy = httpProxy.createProxyServer({ secure: false });
+export const proxy = httpProxy.createProxyServer({
+  secure: false,
+  changeOrigin: true,
+});
 
 proxy.on("proxyRes", (proxyRes, req) => {
   logResponse(req.method ?? "?", req.url ?? "/", proxyRes.statusCode ?? 0);
