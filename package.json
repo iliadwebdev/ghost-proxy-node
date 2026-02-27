@@ -5,6 +5,7 @@
   "author": "Owen Rossi-Keen <owenrossikeen@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "chalk": "^4.1.2",
     "dotenv": "^17.3.1",
     "http-proxy": "^1.18.1"
   },
