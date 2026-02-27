@@ -10,6 +10,12 @@ export function ghostRoute(target: string) {
       return false;
     }
 
+    // Next.js relative chunk URLs can resolve under /ghost/…/_next/…
+    // These must fall through to the Next.js route, not Ghost.
+    if (url.includes("/_next/")) {
+      return false;
+    }
+
     logRequest(req.method ?? "?", url, "ghost");
     proxy.web(req, res, { target });
 
