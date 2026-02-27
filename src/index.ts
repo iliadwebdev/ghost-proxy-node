@@ -11,11 +11,9 @@ import { nextjsRoute } from "./routes/nextjs.js";
 import { ghostRoute } from "./routes/ghost.js";
 
 const config = loadProductionConfig();
-const proxyInternalHost = new URL(config.PROXY_INTERNAL_URL).host;
 
 const targets: Record<string, string> = {
   ActivityPub: config.ACTIVITYPUB_PROXY_TARGET,
-  Analytics: config.ANALYTICS_PROXY_TARGET,
   "Next.js": config.NEXTJS_INTERNAL_URL,
   Ghost: config.GHOST_INTERNAL_URL,
 };
@@ -24,8 +22,8 @@ await checkTargets(targets);
 
 // ORDER IS IMPORTANT — specific routes first, Next.js catch-all last
 const server = createServer([
-  wellKnownRoute(config.ACTIVITYPUB_PROXY_TARGET, proxyInternalHost),
-  activityPubRoute(config.ACTIVITYPUB_PROXY_TARGET, proxyInternalHost),
+  wellKnownRoute(config.ACTIVITYPUB_PROXY_TARGET),
+  activityPubRoute(config.ACTIVITYPUB_PROXY_TARGET),
   analyticsRoute(config.ANALYTICS_PROXY_TARGET),
   ghostRoute(config.GHOST_INTERNAL_URL),
 
