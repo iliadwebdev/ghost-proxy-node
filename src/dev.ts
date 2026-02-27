@@ -11,11 +11,13 @@ const config = loadDevConfig();
 
 const rewritePatterns = [/\.ghost\/analytics/, /\.ghost\/activitypub/];
 const ghostPatterns = [/^\/ghost/, /^\/content\/images/];
+const wellKnownPatterns = [/^\/.well-known\/webfinger/, /^\/.well-known\/nodeinfo/];
 
 function isGhostRequest(url: string): boolean {
   return (
     rewritePatterns.some((p) => p.test(url)) ||
-    ghostPatterns.some((p) => p.test(url))
+    ghostPatterns.some((p) => p.test(url)) ||
+    wellKnownPatterns.some((p) => p.test(url))
   );
 }
 

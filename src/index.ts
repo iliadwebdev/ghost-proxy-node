@@ -5,6 +5,7 @@ import { createServer } from "./server.js";
 
 // Routers
 import { activityPubRoute } from "./routes/activitypub.js";
+import { wellKnownRoute } from "./routes/wellknown.js";
 import { analyticsRoute } from "./routes/analytics.js";
 import { nextjsRoute } from "./routes/nextjs.js";
 import { ghostRoute } from "./routes/ghost.js";
@@ -22,6 +23,7 @@ await checkTargets(targets);
 
 // ORDER IS IMPORTANT — specific routes first, Next.js catch-all last
 const server = createServer([
+  wellKnownRoute(config.ACTIVITYPUB_PROXY_TARGET),
   activityPubRoute(config.ACTIVITYPUB_PROXY_TARGET),
   analyticsRoute(config.ANALYTICS_PROXY_TARGET),
   ghostRoute(config.GHOST_INTERNAL_URL),

@@ -2,8 +2,21 @@ import { logResponse, logError } from "./logger.js";
 import httpProxy from "http-proxy";
 
 export const proxy = httpProxy.createProxyServer({
-  changeOrigin: true, // The origin should be changed to the target URL.
-  secure: false, // Because we are proxying to internal services via HTTP, we don't want to reject self-signed certs. Is this a security risk?
+  secure: false, // Internal services may use self-signed certs
+});
+
+// Set forwarding headers on every proxied request
+proxy.on("proxyReq", (proxyReq, req) => {
+  const host = req.headers.host ?? "";
+  const remoteIp =
+    (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() ??
+    req.socket.remoteAddress ??
+    "";
+
+  proxyReq.setHeader("X-Forwarded-Host", host);
+  proxyReq.setHeader("X-Forwarded-Proto", "https");
+  proxyReq.setHeader("X-Forwarded-For", remoteIp);
+  proxyReq.setHeader("X-Real-IP", remoteIp);
 });
 
 proxy.on("proxyRes", (proxyRes, req) => {
