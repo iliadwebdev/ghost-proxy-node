@@ -5,7 +5,9 @@ export const proxy = httpProxy.createProxyServer({
   secure: false, // Internal services may use self-signed certs
 });
 
-// Set forwarding headers on every proxied request
+// Set forwarding headers on every proxied request.
+// Per-route headers (via proxy.web `headers` option) are applied before this
+// event fires — only set defaults if the route didn't already provide a value.
 proxy.on("proxyReq", (proxyReq, req) => {
   const host = req.headers.host ?? "";
   const remoteIp =
@@ -13,8 +15,12 @@ proxy.on("proxyReq", (proxyReq, req) => {
     req.socket.remoteAddress ??
     "";
 
-  proxyReq.setHeader("X-Forwarded-Host", host);
-  proxyReq.setHeader("X-Forwarded-Proto", "https");
+  if (!proxyReq.getHeader("x-forwarded-host")) {
+    proxyReq.setHeader("X-Forwarded-Host", host);
+  }
+  if (!proxyReq.getHeader("x-forwarded-proto")) {
+    proxyReq.setHeader("X-Forwarded-Proto", "https");
+  }
   proxyReq.setHeader("X-Forwarded-For", remoteIp);
   proxyReq.setHeader("X-Real-IP", remoteIp);
 });

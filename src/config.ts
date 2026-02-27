@@ -8,6 +8,7 @@ const productionSchema = z.object({
   ANALYTICS_PROXY_TARGET: z.string().url(),
   NEXTJS_INTERNAL_URL: z.string().url(),
   GHOST_INTERNAL_URL: z.string().url(),
+  PROXY_INTERNAL_URL: z.string().url(), // This proxy's own internal Railway URL (e.g. http://ghost-proxy-node.railway.internal:8080)
 
   PORT: z.coerce.number().default(8080),
 });
