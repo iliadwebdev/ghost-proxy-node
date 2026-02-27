@@ -1,0 +1,14 @@
+{
+  "name": "ghost-proxy-node",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Owen Rossi-Keen <owenrossikeen@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^17.3.1",
+    "http-proxy": "^1.18.1"
+  },
+  "scripts": {
+    "start": "node src/index.js"
+  }
+}
