@@ -1,6 +1,7 @@
 import { checkTargets } from "./lib/healthcheck.js";
-import { loadProductionConfig } from "./config.js";
 import { logStartup } from "./lib/logger.js";
+
+import { loadProductionConfig } from "./config.js";
 import { createServer } from "./server.js";
 
 // Routers

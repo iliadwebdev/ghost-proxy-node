@@ -1,6 +1,6 @@
-import http from "http";
 import https from "https";
 import chalk from "chalk";
+import http from "http";
 
 function checkTarget(
   name: string,
@@ -12,18 +12,19 @@ function checkTarget(
     const transport = protocol === "https:" ? https : http;
     const req = transport.request(
       {
-        hostname,
         port: port || (protocol === "https:" ? 443 : 80),
-        path: "/",
         method: "HEAD",
+        path: "/",
+        hostname,
         timeout,
       },
       (res) => {
         res.resume();
+
         console.log(
-          chalk.green(`  ✓ ${name}`) +
-            chalk.gray(` (${url}) — status ${res.statusCode}`),
+          `${chalk.green(`  ✓ ${name}`)} ${chalk.gray(` (${url}) — status ${res.statusCode}`)}`,
         );
+
         resolve(true);
       },
     );
@@ -31,15 +32,14 @@ function checkTarget(
     req.on("timeout", () => {
       req.destroy();
       console.warn(
-        chalk.red(`  ✗ ${name}`) +
-          chalk.gray(` (${url}) — timed out after ${timeout}ms`),
+        `${chalk.red(`  ✗ ${name}`)} ${chalk.gray(` (${url}) — timed out after ${timeout}ms`)}`,
       );
       resolve(false);
     });
 
     req.on("error", (err) => {
       console.warn(
-        chalk.red(`  ✗ ${name}`) + chalk.gray(` (${url}) — ${err.message}`),
+        `${chalk.red(`  ✗ ${name}`)} ${chalk.gray(` (${url}) — ${err.message}`)}`,
       );
       resolve(false);
     });
@@ -61,9 +61,7 @@ export async function checkTargets(
     console.log(chalk.green.bold("All targets reachable."));
   } else {
     console.warn(
-      chalk.yellow.bold(
-        "Some targets are unreachable — proxy will start anyway.",
-      ),
+      `${chalk.yellow.bold("  ⚠ Some targets are unreachable — proxy will start anyway.")}`,
     );
   }
 }

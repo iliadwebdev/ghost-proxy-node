@@ -37,6 +37,7 @@ export function logStartup(
   targets: Record<string, string>,
 ): void {
   console.log(chalk.green.bold(`Proxy running on port ${port}`));
+
   for (const [name, url] of Object.entries(targets)) {
     console.log(`  ${name}: ${chalk.cyan(url)}`);
   }

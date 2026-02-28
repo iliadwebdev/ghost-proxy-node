@@ -1,9 +1,10 @@
 import { checkTargets } from "./lib/healthcheck.js";
 import { logRequest } from "./lib/logger.js";
 import { logStartup } from "./lib/logger.js";
+import { proxy } from "./lib/proxy.js";
+
 import { loadDevConfig } from "./config.js";
 import { createServer } from "./server.js";
-import { proxy } from "./lib/proxy.js";
 
 import type { IncomingMessage, ServerResponse } from "http";
 
@@ -11,13 +12,16 @@ const config = loadDevConfig();
 
 const rewritePatterns = [/\.ghost\/analytics/, /\.ghost\/activitypub/];
 const ghostPatterns = [/^\/ghost/, /^\/content\/images/];
-const wellKnownPatterns = [/^\/.well-known\/webfinger/, /^\/.well-known\/nodeinfo/];
+const wellKnownPatterns = [
+  /^\/.well-known\/webfinger/,
+  /^\/.well-known\/nodeinfo/,
+];
 
 function isGhostRequest(url: string): boolean {
   return (
+    wellKnownPatterns.some((p) => p.test(url)) ||
     rewritePatterns.some((p) => p.test(url)) ||
-    ghostPatterns.some((p) => p.test(url)) ||
-    wellKnownPatterns.some((p) => p.test(url))
+    ghostPatterns.some((p) => p.test(url))
   );
 }
 

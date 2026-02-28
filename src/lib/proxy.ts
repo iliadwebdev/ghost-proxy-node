@@ -10,6 +10,7 @@ export const proxy = httpProxy.createProxyServer({
 // event fires — only set defaults if the route didn't already provide a value.
 proxy.on("proxyReq", (proxyReq, req) => {
   const host = req.headers.host ?? "";
+
   const remoteIp =
     (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() ??
     req.socket.remoteAddress ??
@@ -18,9 +19,11 @@ proxy.on("proxyReq", (proxyReq, req) => {
   if (!proxyReq.getHeader("x-forwarded-host")) {
     proxyReq.setHeader("X-Forwarded-Host", host);
   }
+
   if (!proxyReq.getHeader("x-forwarded-proto")) {
     proxyReq.setHeader("X-Forwarded-Proto", "https");
   }
+
   proxyReq.setHeader("X-Forwarded-For", remoteIp);
   proxyReq.setHeader("X-Real-IP", remoteIp);
 });
