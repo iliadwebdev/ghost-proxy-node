@@ -1,3 +1,5 @@
+import chalk from "chalk";
+
 import { checkTargets } from "./lib/healthcheck.js";
 import { logStartup } from "./lib/logger.js";
 
@@ -13,9 +15,17 @@ import { ghostRoute } from "./routes/ghost.js";
 
 const config = loadProductionConfig();
 
+if (!config.NEXTJS_INTERNAL_URL) {
+  console.warn(
+    chalk.yellow.bold("Warning: NEXTJS_INTERNAL_URL is not set. Falling back to GHOST_INTERNAL_URL for all non-Ghost routes."),
+  );
+}
+
+const nextjsTarget = config.NEXTJS_INTERNAL_URL ?? config.GHOST_INTERNAL_URL;
+
 const targets: Record<string, string> = {
   ActivityPub: config.ACTIVITYPUB_PROXY_TARGET,
-  "Next.js": config.NEXTJS_INTERNAL_URL,
+  "Next.js": nextjsTarget,
   Ghost: config.GHOST_INTERNAL_URL,
 };
 
@@ -29,7 +39,7 @@ const server = createServer([
   ghostRoute(config.GHOST_INTERNAL_URL),
 
   // Next should probably come last no matter what
-  nextjsRoute(config.NEXTJS_INTERNAL_URL),
+  nextjsRoute(nextjsTarget),
 ]);
 
 server.listen(config.PORT, () => {

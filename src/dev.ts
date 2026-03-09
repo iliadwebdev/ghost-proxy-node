@@ -48,6 +48,13 @@ await checkTargets(targets);
 
 const server = createServer([devProxyRoute]);
 
+server.on("upgrade", (req, socket, head) => {
+  const url = req.url ?? "/";
+  const target = isGhostRequest(url) ? config.PROXY_TARGET : config.DEV_NEXTJS_URL;
+  logRequest("WS", url, target);
+  proxy.ws(req, socket, head, { target });
+});
+
 server.listen(config.DEV_PORT, () => {
   logStartup(config.DEV_PORT, targets);
 });
