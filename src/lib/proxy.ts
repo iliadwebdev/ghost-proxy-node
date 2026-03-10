@@ -46,13 +46,34 @@ function isAllowedFrameOrigin(originHeader: string | undefined): boolean {
   }
 }
 
+// Resolve the effective origin from the request, falling back to the Referer
+// header. Iframe navigations do not include an Origin header, so Referer is
+// the only signal available.
+function resolveOrigin(req: {
+  headers: Record<string, string | string[] | undefined>;
+}): string | undefined {
+  const origin = req.headers["origin"] as string | undefined;
+  if (origin) return origin;
+
+  const referer = req.headers["referer"] as string | undefined;
+  if (!referer) return undefined;
+  try {
+    const { origin: o } = new URL(referer);
+    return o;
+  } catch {
+    return undefined;
+  }
+}
+
 proxy.on("proxyRes", (proxyRes, req) => {
   logResponse(req.method ?? "?", req.url ?? "/", proxyRes.statusCode ?? 0);
 
-  const origin = req.headers["origin"] as string | undefined;
+  const origin = resolveOrigin(req as any);
   if (isAllowedFrameOrigin(origin)) {
     logFrameOverride(origin!, req.url ?? "/");
-    proxyRes.headers["x-frame-options"] = `ALLOW-FROM ${origin}`;
+    // X-Frame-Options ALLOW-FROM is not supported in modern browsers.
+    // Delete it and rely on the CSP frame-ancestors directive instead.
+    delete proxyRes.headers["x-frame-options"];
     proxyRes.headers["content-security-policy"] =
       `frame-ancestors 'self' ${origin}`;
     proxyRes.headers["access-control-allow-origin"] = origin;

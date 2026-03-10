@@ -17,7 +17,9 @@ const config = loadProductionConfig();
 
 if (!config.NEXTJS_INTERNAL_URL) {
   console.warn(
-    chalk.yellow.bold("Warning: NEXTJS_INTERNAL_URL is not set. Falling back to GHOST_INTERNAL_URL for all non-Ghost routes."),
+    chalk.yellow.bold(
+      "Warning: NEXTJS_INTERNAL_URL is not set. Falling back to GHOST_INTERNAL_URL for all non-Ghost routes.",
+    ),
   );
 }
 
@@ -25,8 +27,8 @@ const nextjsTarget = config.NEXTJS_INTERNAL_URL ?? config.GHOST_INTERNAL_URL;
 
 const targets: Record<string, string> = {
   ActivityPub: config.ACTIVITYPUB_PROXY_TARGET,
-  "Next.js": nextjsTarget,
   Ghost: config.GHOST_INTERNAL_URL,
+  "Next.js": nextjsTarget,
 };
 
 await checkTargets(targets);
