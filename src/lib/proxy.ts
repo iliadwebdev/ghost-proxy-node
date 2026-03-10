@@ -1,4 +1,4 @@
-import { logResponse, logError } from "./logger.js";
+import { logResponse, logError, logFrameOverride } from "./logger.js";
 import httpProxy from "http-proxy";
 
 export const proxy = httpProxy.createProxyServer({
@@ -28,8 +28,36 @@ proxy.on("proxyReq", (proxyReq, req) => {
   proxyReq.setHeader("X-Real-IP", remoteIp);
 });
 
+const ALLOWED_FRAME_ORIGINS = [
+  "localhost",
+  "atlas-cms.rest",
+  "iliad.dev",
+];
+
+function isAllowedFrameOrigin(originHeader: string | undefined): boolean {
+  if (!originHeader) return false;
+  try {
+    const { hostname } = new URL(originHeader);
+    return ALLOWED_FRAME_ORIGINS.some(
+      (allowed) => hostname === allowed || hostname.endsWith(`.${allowed}`)
+    );
+  } catch {
+    return false;
+  }
+}
+
 proxy.on("proxyRes", (proxyRes, req) => {
   logResponse(req.method ?? "?", req.url ?? "/", proxyRes.statusCode ?? 0);
+
+  const origin = req.headers["origin"] as string | undefined;
+  if (isAllowedFrameOrigin(origin)) {
+    logFrameOverride(origin!, req.url ?? "/");
+    proxyRes.headers["x-frame-options"] = `ALLOW-FROM ${origin}`;
+    proxyRes.headers["content-security-policy"] =
+      `frame-ancestors 'self' ${origin}`;
+    proxyRes.headers["access-control-allow-origin"] = origin;
+    proxyRes.headers["access-control-allow-credentials"] = "true";
+  }
 });
 
 proxy.on("error", (err, req, res) => {

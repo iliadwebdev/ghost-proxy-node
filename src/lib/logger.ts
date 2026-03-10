@@ -26,6 +26,12 @@ export function logResponse(method: string, url: string, status: number): void {
   );
 }
 
+export function logFrameOverride(origin: string, url: string): void {
+  console.log(
+    `${timestamp()} ${chalk.magenta.bold("[frame-override]")} ${url} ${chalk.gray("←")} ${chalk.magenta(origin)}`,
+  );
+}
+
 export function logError(method: string, url: string, message: string): void {
   console.error(
     `${chalk.red.bold("[proxy error]")} ${method} ${url} — ${chalk.red(message)}`,
