@@ -4,9 +4,9 @@ import chalk from "chalk";
 import { z } from "zod";
 
 const productionSchema = z.object({
+  NEXTJS_INTERNAL_URL: z.string().url().optional(),
   ACTIVITYPUB_PROXY_TARGET: z.string().url(),
   ANALYTICS_PROXY_TARGET: z.string().url(),
-  NEXTJS_INTERNAL_URL: z.string().url().optional(),
   GHOST_INTERNAL_URL: z.string().url(),
 
   PORT: z.coerce.number().default(8080),

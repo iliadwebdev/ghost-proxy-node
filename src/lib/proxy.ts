@@ -28,18 +28,14 @@ proxy.on("proxyReq", (proxyReq, req) => {
   proxyReq.setHeader("X-Real-IP", remoteIp);
 });
 
-const ALLOWED_FRAME_ORIGINS = [
-  "localhost",
-  "atlas-cms.rest",
-  "iliad.dev",
-];
+const ALLOWED_FRAME_ORIGINS = ["atlas-cms.rest", "localhost", "iliad.dev"];
 
 function isAllowedFrameOrigin(originHeader: string | undefined): boolean {
   if (!originHeader) return false;
   try {
     const { hostname } = new URL(originHeader);
     return ALLOWED_FRAME_ORIGINS.some(
-      (allowed) => hostname === allowed || hostname.endsWith(`.${allowed}`)
+      (allowed) => hostname === allowed || hostname.endsWith(`.${allowed}`),
     );
   } catch {
     return false;
@@ -65,17 +61,35 @@ function resolveOrigin(req: {
   }
 }
 
+// Static frame-ancestors value covering all approved embedding domains.
+// This is always applied — frame embedding policy is about who may embed us,
+// not about who is asking, so it doesn't need to vary per-request.
+const FRAME_ANCESTORS = ALLOWED_FRAME_ORIGINS.map((d) =>
+  d === "localhost" ? "localhost:*" : `*.${d} ${d}`
+).join(" ");
+const FRAME_ANCESTORS_CSP = `frame-ancestors 'self' ${FRAME_ANCESTORS}`;
+
 proxy.on("proxyRes", (proxyRes, req) => {
   logResponse(req.method ?? "?", req.url ?? "/", proxyRes.statusCode ?? 0);
 
+  // Always remove X-Frame-Options and apply permissive frame-ancestors CSP
+  // so that approved domains can embed this site regardless of what headers
+  // the browser sends on the initial iframe navigation.
+  if (proxyRes.headers["x-frame-options"]) {
+    logFrameOverride("static policy", req.url ?? "/");
+    delete proxyRes.headers["x-frame-options"];
+
+    const existing = proxyRes.headers["content-security-policy"] as
+      | string
+      | undefined;
+    proxyRes.headers["content-security-policy"] = existing
+      ? existing.replace(/frame-ancestors[^;]*(;|$)/, FRAME_ANCESTORS_CSP)
+      : FRAME_ANCESTORS_CSP;
+  }
+
+  // Dynamic CORS — echo origin back only for approved domains.
   const origin = resolveOrigin(req as any);
   if (isAllowedFrameOrigin(origin)) {
-    logFrameOverride(origin!, req.url ?? "/");
-    // X-Frame-Options ALLOW-FROM is not supported in modern browsers.
-    // Delete it and rely on the CSP frame-ancestors directive instead.
-    delete proxyRes.headers["x-frame-options"];
-    proxyRes.headers["content-security-policy"] =
-      `frame-ancestors 'self' ${origin}`;
     proxyRes.headers["access-control-allow-origin"] = origin;
     proxyRes.headers["access-control-allow-credentials"] = "true";
   }
