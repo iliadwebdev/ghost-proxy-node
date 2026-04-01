@@ -28,17 +28,28 @@ export function ghostRoute(target: string, atlasPanelUrl?: string) {
 
     // Redirect top-level navigations to /ghost → Atlas admin panel.
     // Iframe requests (Sec-Fetch-Dest: iframe) pass through to Ghost directly.
+    //
+    // Why a client-side redirect instead of a 302?
+    // Ghost admin uses hash-based routing (e.g. /ghost/#/members/abc123).
+    // Browsers never send the URL fragment (everything after #) to the server,
+    // so a server-side redirect would always lose the specific admin page the
+    // user was trying to reach. By serving a small HTML page with JavaScript,
+    // we can read window.location.hash on the client and include it in the
+    // redirect to Atlas.
     if (
       req.headers["sec-fetch-dest"] === "document" &&
       url.startsWith("/ghost") &&
       atlasPanelUrl
     ) {
-      const destination = url.slice("/ghost".length) || "/";
-      const redirectUrl = `${atlasPanelUrl}/admin/plugins/ghost?destination=${encodeURIComponent(destination)}`;
+      const atlasBase = `${atlasPanelUrl}/admin/plugins/ghost`;
 
       logRequest(req.method ?? "?", url, "atlas-redirect");
-      res.writeHead(302, { Location: redirectUrl });
-      res.end();
+      res.writeHead(200, { "Content-Type": "text/html" });
+      res.end(`<!DOCTYPE html>
+<html><head><script>
+var dest = location.hash ? "/" + location.hash : "/";
+window.location.replace(${JSON.stringify(atlasBase)} + "?destination=" + encodeURIComponent(dest));
+</script></head><body></body></html>`);
 
       return true;
     }
