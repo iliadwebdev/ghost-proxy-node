@@ -10,6 +10,7 @@ function checkTarget(
   return new Promise((resolve) => {
     const { hostname, port, protocol } = new URL(url);
     const transport = protocol === "https:" ? https : http;
+
     const req = transport.request(
       {
         port: port || (protocol === "https:" ? 443 : 80),
@@ -53,9 +54,11 @@ export async function checkTargets(
 ): Promise<void> {
   console.log(chalk.bold("Checking proxy targets…"));
 
-  const results = await Promise.all(
-    Object.entries(targets).map(([name, url]) => checkTarget(name, url)),
-  );
+  const checkTargetPromises = Object.entries(targets).map(([name, url]) => {
+    return checkTarget(name, url);
+  });
+
+  const results = await Promise.all(checkTargetPromises);
 
   if (results.every(Boolean)) {
     console.log(chalk.green.bold("All targets reachable."));

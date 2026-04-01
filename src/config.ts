@@ -8,6 +8,7 @@ const productionSchema = z.object({
   ACTIVITYPUB_PROXY_TARGET: z.string().url(),
   ANALYTICS_PROXY_TARGET: z.string().url(),
   GHOST_INTERNAL_URL: z.string().url(),
+  ATLAS_PANEL_URL: z.string().url().optional(),
 
   PORT: z.coerce.number().default(8080),
 });

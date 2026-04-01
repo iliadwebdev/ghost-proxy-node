@@ -12,7 +12,7 @@ function isGhostPath(url: string): boolean {
   return false;
 }
 
-export function ghostRoute(target: string) {
+export function ghostRoute(target: string, atlasPanelUrl?: string) {
   return (req: IncomingMessage, res: ServerResponse): boolean => {
     const url = req.url ?? "/";
 
@@ -24,6 +24,23 @@ export function ghostRoute(target: string) {
     // These must fall through to the Next.js route, not Ghost.
     if (url.includes("/_next/")) {
       return false;
+    }
+
+    // Redirect top-level navigations to /ghost → Atlas admin panel.
+    // Iframe requests (Sec-Fetch-Dest: iframe) pass through to Ghost directly.
+    if (
+      req.headers["sec-fetch-dest"] === "document" &&
+      url.startsWith("/ghost") &&
+      atlasPanelUrl
+    ) {
+      const destination = url.slice("/ghost".length) || "/";
+      const redirectUrl = `${atlasPanelUrl}/admin/plugins/ghost?destination=${encodeURIComponent(destination)}`;
+
+      logRequest(req.method ?? "?", url, "atlas-redirect");
+      res.writeHead(302, { Location: redirectUrl });
+      res.end();
+
+      return true;
     }
 
     logRequest(req.method ?? "?", url, "ghost");

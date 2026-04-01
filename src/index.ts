@@ -38,7 +38,7 @@ const server = createServer([
   wellKnownRoute(config.ACTIVITYPUB_PROXY_TARGET),
   activityPubRoute(config.ACTIVITYPUB_PROXY_TARGET),
   analyticsRoute(config.ANALYTICS_PROXY_TARGET),
-  ghostRoute(config.GHOST_INTERNAL_URL),
+  ghostRoute(config.GHOST_INTERNAL_URL, config.ATLAS_PANEL_URL),
 
   // Next should probably come last no matter what
   nextjsRoute(nextjsTarget),

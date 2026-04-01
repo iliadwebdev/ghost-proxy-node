@@ -34,9 +34,10 @@ function isAllowedFrameOrigin(originHeader: string | undefined): boolean {
   if (!originHeader) return false;
   try {
     const { hostname } = new URL(originHeader);
-    return ALLOWED_FRAME_ORIGINS.some(
-      (allowed) => hostname === allowed || hostname.endsWith(`.${allowed}`),
-    );
+
+    return ALLOWED_FRAME_ORIGINS.some((allowed) => {
+      return hostname === allowed || hostname.endsWith(`.${allowed}`);
+    });
   } catch {
     return false;
   }
@@ -53,9 +54,9 @@ function resolveOrigin(req: {
 
   const referer = req.headers["referer"] as string | undefined;
   if (!referer) return undefined;
+
   try {
-    const { origin: o } = new URL(referer);
-    return o;
+    return new URL(referer).origin;
   } catch {
     return undefined;
   }
@@ -65,7 +66,7 @@ function resolveOrigin(req: {
 // This is always applied — frame embedding policy is about who may embed us,
 // not about who is asking, so it doesn't need to vary per-request.
 const FRAME_ANCESTORS = ALLOWED_FRAME_ORIGINS.map((d) =>
-  d === "localhost" ? "localhost:*" : `*.${d} ${d}`
+  d === "localhost" ? "localhost:*" : `*.${d} ${d}`,
 ).join(" ");
 const FRAME_ANCESTORS_CSP = `frame-ancestors 'self' ${FRAME_ANCESTORS}`;
 
@@ -82,16 +83,20 @@ proxy.on("proxyRes", (proxyRes, req) => {
     const existing = proxyRes.headers["content-security-policy"] as
       | string
       | undefined;
-    proxyRes.headers["content-security-policy"] = existing
+
+    const newCsp = existing
       ? existing.replace(/frame-ancestors[^;]*(;|$)/, FRAME_ANCESTORS_CSP)
       : FRAME_ANCESTORS_CSP;
+
+    proxyRes.headers["content-security-policy"] = newCsp;
   }
 
   // Dynamic CORS — echo origin back only for approved domains.
   const origin = resolveOrigin(req as any);
+
   if (isAllowedFrameOrigin(origin)) {
-    proxyRes.headers["access-control-allow-origin"] = origin;
     proxyRes.headers["access-control-allow-credentials"] = "true";
+    proxyRes.headers["access-control-allow-origin"] = origin;
   }
 });
 
