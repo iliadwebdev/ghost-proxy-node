@@ -11,7 +11,7 @@ import type { IncomingMessage, ServerResponse } from "http";
 const config = loadDevConfig();
 
 const rewritePatterns = [/\.ghost\/analytics/, /\.ghost\/activitypub/];
-const ghostPatterns = [/^\/ghost/, /^\/content\/images/];
+const ghostPatterns = [/^\/ghost/, /^\/content\//];
 const wellKnownPatterns = [
   /^\/.well-known\/webfinger/,
   /^\/.well-known\/nodeinfo/,

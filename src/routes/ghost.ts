@@ -5,7 +5,7 @@ import { proxy } from "../lib/proxy.js";
 
 function isGhostPath(url: string): boolean {
   if (url.startsWith("/members/") && url.includes("token=")) return true;
-  if (url.startsWith("/content/images")) return true;
+  if (url.startsWith("/content/")) return true;
   if (url.startsWith("/members/api")) return true;
   if (url.startsWith("/ghost")) return true;
 
