@@ -4,10 +4,11 @@ import { logRequest } from "../lib/logger.js";
 import { proxy } from "../lib/proxy.js";
 
 function isGhostPath(url: string): boolean {
-  if (url.startsWith("/members/") && url.includes("token=")) return true;
-  if (url.startsWith("/content/")) return true;
-  if (url.startsWith("/members/api")) return true;
-  if (url.startsWith("/ghost")) return true;
+  if (url.startsWith("/members/") && url.includes("token=")) return true; // Member token verification
+  if (url.startsWith("/members/api")) return true; // Ghost's members API
+  if (url.startsWith("/content/")) return true; // Ghost's content API (e.g. for images, scripts)
+  if (url.startsWith("/ghost")) return true; // Ghost admin interface
+  if (url.startsWith("/r/")) return true; // Email click tracking redirects
 
   return false;
 }

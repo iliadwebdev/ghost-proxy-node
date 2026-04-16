@@ -28,10 +28,10 @@ const DevSchema = Schema.Struct({
 
 const productionSchema = z.object({
   NEXTJS_INTERNAL_URL: z.string().url().optional(),
+  ATLAS_PANEL_URL: z.string().url().optional(),
   ACTIVITYPUB_PROXY_TARGET: z.string().url(),
   ANALYTICS_PROXY_TARGET: z.string().url(),
   GHOST_INTERNAL_URL: z.string().url(),
-  ATLAS_PANEL_URL: z.string().url().optional(),
 
   PORT: z.coerce.number().default(8080),
 });
