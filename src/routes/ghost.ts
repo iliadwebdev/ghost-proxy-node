@@ -6,7 +6,7 @@ import { proxy } from "../lib/proxy.js";
 
 function isGhostPath(url: string): boolean {
   if (url.startsWith("/members/") && url.includes("token=")) return true; // Member token verification
-  if (url.startsWith("/unsubscribe/")) return true; // Newsletter unsubscribe
+  if (url.startsWith("/unsubscribe")) return true; // Newsletter unsubscribe
   if (url.startsWith("/members/api")) return true; // Ghost's members API
   if (url.startsWith("/content/")) return true; // Ghost's content API (e.g. for images, scripts)
   if (url.startsWith("/ghost")) return true; // Ghost admin interface
