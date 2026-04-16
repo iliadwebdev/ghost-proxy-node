@@ -9,12 +9,7 @@
     "outDir": "dist",
     "rootDir": "src",
     "resolveJsonModule": true,
-    "isolatedModules": true,
-    "plugins": [
-      {
-        "name": "@effect/language-service"
-      }
-    ]
+    "isolatedModules": true
   },
   "include": ["src"]
 }

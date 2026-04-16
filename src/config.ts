@@ -3,29 +3,6 @@ import "dotenv/config";
 import chalk from "chalk";
 import { z } from "zod";
 
-import { Schema } from "effect";
-
-const ProductionSchema = Schema.Struct({
-  NEXTJS_INTERNAL_URL: Schema.optional(Schema.String),
-  ATLAS_PANEL_URL: Schema.optional(Schema.String),
-  ACTIVITYPUB_PROXY_TARGET: Schema.String,
-  ANALYTICS_PROXY_TARGET: Schema.String,
-  GHOST_INTERNAL_URL: Schema.String,
-  PORT: Schema.optional(Schema.NumberFromString).pipe(
-    Schema.withConstructorDefault(() => 8000),
-  ),
-});
-
-const DevSchema = Schema.Struct({
-  PROXY_TARGET: Schema.String,
-  DEV_NEXTJS_URL: Schema.optional(Schema.String).pipe(
-    Schema.withConstructorDefault(() => "http://localhost:3000"),
-  ),
-  DEV_PORT: Schema.optional(Schema.NumberFromString).pipe(
-    Schema.withConstructorDefault(() => 3001),
-  ),
-});
-
 const productionSchema = z.object({
   NEXTJS_INTERNAL_URL: z.string().url().optional(),
   ATLAS_PANEL_URL: z.string().url().optional(),
