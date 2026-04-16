@@ -1,5 +1,6 @@
 import type { IncomingMessage, ServerResponse } from "http";
 
+import { buildAtlasRedirectPage } from "../lib/domBuilders.js";
 import { logRequest } from "../lib/logger.js";
 import { proxy } from "../lib/proxy.js";
 
@@ -45,12 +46,11 @@ export function ghostRoute(target: string, atlasPanelUrl?: string) {
       const atlasBase = `${atlasPanelUrl}/admin/plugins/ghost`;
 
       logRequest(req.method ?? "?", url, "atlas-redirect");
+
+      const redirectPage = buildAtlasRedirectPage(atlasBase);
+
       res.writeHead(200, { "Content-Type": "text/html" });
-      res.end(`<!DOCTYPE html>
-<html><head><script>
-var dest = location.hash ? "/" + location.hash : "/";
-window.location.replace(${JSON.stringify(atlasBase)} + "?destination=" + encodeURIComponent(dest));
-</script></head><body></body></html>`);
+      res.end(redirectPage);
 
       return true;
     }
