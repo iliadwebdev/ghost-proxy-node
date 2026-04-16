@@ -11,6 +11,7 @@ import { activityPubRoute } from "./routes/activitypub.js";
 import { wellKnownRoute } from "./routes/wellknown.js";
 import { analyticsRoute } from "./routes/analytics.js";
 import { nextjsRoute } from "./routes/nextjs.js";
+import { ghostFrontendRoute } from "./routes/ghostFrontend.js";
 import { ghostRoute } from "./routes/ghost.js";
 
 const config = loadProductionConfig();
@@ -39,6 +40,7 @@ const server = createServer([
   activityPubRoute(config.ACTIVITYPUB_PROXY_TARGET),
   analyticsRoute(config.ANALYTICS_PROXY_TARGET),
   ghostRoute(config.GHOST_INTERNAL_URL, config.ATLAS_PANEL_URL),
+  ghostFrontendRoute(config.GHOST_INTERNAL_URL),
 
   // Next should probably come last no matter what
   nextjsRoute(nextjsTarget),
