@@ -62,8 +62,17 @@ const server = createServer([devProxyRoute]);
 
 server.on("upgrade", (req, socket, head) => {
   const url = req.url ?? "/";
-  const target =
-    !nextjsUrl || isGhostRequest(url) ? config.PROXY_TARGET : nextjsUrl;
+  const target = (() => {
+    if (isGhostRequest(url)) {
+      return config.PROXY_TARGET;
+    }
+
+    if (nextjsUrl) {
+      return nextjsUrl;
+    }
+
+    return config.PROXY_TARGET;
+  })();
 
   logRequest("WS", url, target);
 

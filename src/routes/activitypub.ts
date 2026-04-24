@@ -12,6 +12,7 @@ export function activityPubRoute(target: string) {
     // Do NOT rewrite the URL — the ActivityPub service expects the full path.
     logRequest(req.method ?? "?", req.url ?? "/", "activitypub");
     proxy.web(req, res, { target });
+
     return true;
   };
 }

@@ -15,6 +15,7 @@ export function ghostFrontendRoute(target: string) {
 
     const forwarded = req.url.slice(PREFIX.length) || "/";
     logRequest(req.method ?? "?", `${PREFIX} → ${forwarded}`, "ghost-frontend");
+
     req.url = forwarded;
     proxy.web(req, res, { target });
 

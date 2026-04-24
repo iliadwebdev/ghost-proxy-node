@@ -30,20 +30,26 @@ function checkTarget(
       },
     );
 
-    req.on("timeout", () => {
+    function handleRequestTimeout() {
       req.destroy();
+
       console.warn(
         `${chalk.red(`  ✗ ${name}`)} ${chalk.gray(` (${url}) — timed out after ${timeout}ms`)}`,
       );
-      resolve(false);
-    });
 
-    req.on("error", (err) => {
+      resolve(false);
+    }
+
+    function handleRequestError(err: Error) {
       console.warn(
         `${chalk.red(`  ✗ ${name}`)} ${chalk.gray(` (${url}) — ${err.message}`)}`,
       );
+
       resolve(false);
-    });
+    }
+
+    req.on("timeout", handleRequestTimeout);
+    req.on("error", handleRequestError);
 
     req.end();
   });
