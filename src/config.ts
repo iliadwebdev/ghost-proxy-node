@@ -14,7 +14,7 @@ const productionSchema = z.object({
 });
 
 const devSchema = z.object({
-  DEV_NEXTJS_URL: z.string().url().default("http://localhost:3000"),
+  DEV_NEXTJS_URL: z.string().url().optional(),
   DEV_PORT: z.coerce.number().default(3001),
   PROXY_TARGET: z.string().url(),
 });

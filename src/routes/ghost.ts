@@ -62,3 +62,12 @@ export function ghostRoute(target: string, atlasPanelUrl?: string) {
     return true;
   };
 }
+
+export function ghostCatchallRoute(target: string) {
+  return (req: IncomingMessage, res: ServerResponse): boolean => {
+    logRequest(req.method ?? "?", req.url ?? "/", "ghost-catchall");
+    proxy.web(req, res, { target });
+
+    return true;
+  };
+}

@@ -1,3 +1,5 @@
+import chalk from "chalk";
+
 import { checkTargets } from "./lib/healthcheck.js";
 import { logRequest } from "./lib/logger.js";
 import { logStartup } from "./lib/logger.js";
@@ -9,6 +11,16 @@ import { createServer } from "./server.js";
 import type { IncomingMessage, ServerResponse } from "http";
 
 const config = loadDevConfig();
+
+const nextjsUrl = config.DEV_NEXTJS_URL;
+
+if (!nextjsUrl) {
+  console.warn(
+    chalk.yellow.bold(
+      "Running dev in Ghost-only mode — DEV_NEXTJS_URL is not set, so all non-Ghost traffic will be sent to PROXY_TARGET.",
+    ),
+  );
+}
 
 const rewritePatterns = [/\.ghost\/analytics/, /\.ghost\/activitypub/];
 const ghostPatterns = [/^\/ghost/, /^\/content\//];
@@ -28,12 +40,12 @@ function isGhostRequest(url: string): boolean {
 function devProxyRoute(req: IncomingMessage, res: ServerResponse): boolean {
   const url = req.url ?? "/";
 
-  if (isGhostRequest(url)) {
+  if (!nextjsUrl || isGhostRequest(url)) {
     logRequest(req.method ?? "?", url, "production proxy");
     proxy.web(req, res, { target: config.PROXY_TARGET });
   } else {
     logRequest(req.method ?? "?", url, "local nextjs");
-    proxy.web(req, res, { target: config.DEV_NEXTJS_URL });
+    proxy.web(req, res, { target: nextjsUrl });
   }
 
   return true;
@@ -41,7 +53,7 @@ function devProxyRoute(req: IncomingMessage, res: ServerResponse): boolean {
 
 const targets: Record<string, string> = {
   "Production proxy": config.PROXY_TARGET,
-  "Local Next.js": config.DEV_NEXTJS_URL,
+  ...(nextjsUrl ? { "Local Next.js": nextjsUrl } : {}),
 };
 
 await checkTargets(targets);
@@ -50,9 +62,8 @@ const server = createServer([devProxyRoute]);
 
 server.on("upgrade", (req, socket, head) => {
   const url = req.url ?? "/";
-  const target = isGhostRequest(url)
-    ? config.PROXY_TARGET
-    : config.DEV_NEXTJS_URL;
+  const target =
+    !nextjsUrl || isGhostRequest(url) ? config.PROXY_TARGET : nextjsUrl;
 
   logRequest("WS", url, target);
 
